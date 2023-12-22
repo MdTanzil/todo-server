@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
-const port = 3000;
+const port = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cors());
 
@@ -38,8 +38,10 @@ const todosCollection = client.db("todo").collection("todos");
 app.get("/", (req, res) => {
   res.send("Hello World sdd!");
 });
-app.get("/todos", async (req, res) => {
-  const todos = await todosCollection.find().toArray();
+app.get("/todos/:email", async (req, res) => {
+    const email = req.params.email;
+    // console.log(email);
+  const todos = await todosCollection.find({email : email}).sort({ _id: -1 }).toArray();
   res.send(todos);
 });
 
@@ -72,7 +74,12 @@ app.delete('/todos/:id', async (req, res) => {
     res.send(result)
     
 })
-app.post
+app.post('/todos', async (req, res) => {
+    const data = req.body
+    const result = await todosCollection.insertOne(data)
+    res.send(result)
+
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
